@@ -1,0 +1,58 @@
+digraph ER_Diagram {
+    rankdir=LR;
+    
+    // Entities
+    node [shape=box, style=filled, fillcolor=lightblue] 
+    User; 
+    Sensor; 
+    WaterUsageLog; 
+    Alert; 
+
+    // Relationships
+    User -> WaterUsageLog [label="Generates"];
+    Sensor -> WaterUsageLog [label="Records Data"];
+    User -> Alert [label="Receives"];
+    Sensor -> Alert [label="Triggers if abnormal usage detected"];
+    
+    // Attributes
+    node [shape=ellipse, style=filled, fillcolor=lightyellow]
+    
+    // User attributes
+    UserID [label="UserID (PK)"];
+    UserName [label="UserName"];
+    UserEmail [label="UserEmail"];
+    UserPhone [label="UserPhone"];
+    
+    // Sensor attributes
+    SensorID [label="SensorID (PK)"];
+    SensorLocation [label="Location"];
+    SensorType [label="Type"];
+
+    // Water Usage Log attributes
+    LogID [label="LogID (PK)"];
+    WaterAmount [label="WaterAmount"];
+    Timestamp [label="Timestamp"];
+
+    // Alert attributes
+    AlertID [label="AlertID (PK)"];
+    AlertType [label="AlertType"];
+    AlertTime [label="AlertTime"];
+
+    // Connecting attributes to entities
+    User -> UserID;
+    User -> UserName;
+    User -> UserEmail;
+    User -> UserPhone;
+
+    Sensor -> SensorID;
+    Sensor -> SensorLocation;
+    Sensor -> SensorType;
+
+    WaterUsageLog -> LogID;
+    WaterUsageLog -> WaterAmount;
+    WaterUsageLog -> Timestamp;
+
+    Alert -> AlertID;
+    Alert -> AlertType;
+    Alert -> AlertTime;
+}

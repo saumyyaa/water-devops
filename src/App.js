@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard";
 import History from "./components/History"; // Make sure this file exists
 import ProtectedRoute from "./components/ProtectedRoute"; // Make sure this file exists
 import "./i18n";
+jest.mock('axios');
 
 function App() {
   return (
