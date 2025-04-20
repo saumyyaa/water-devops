@@ -1,32 +1,31 @@
-name: CI/CD Pipeline
+name: Deploy to EC2
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: 🔧 Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: 📦 Install dependencies (with legacy peer deps)
-        run: npm install --legacy-peer-deps
-
-      - name: 🧹 Lint code (optional, skip if you don't use linting)
-        run: echo "Skipping lint step" # Replace with `npm run lint` if you use it
-
-      - name: ✅ Run tests
-        run: npm test -- --watchAll=false
-
-      - name: 🚀 Build project
-        run: npm run build
+    - name: Deploy to EC2
+      run: |
+        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          cd /home/ubuntu/weather-footprint-project
+          git pull origin main
+          npm install
+          npm run build
+          pm2 restart app || pm2 start npm --name app -- start
+        EOF
