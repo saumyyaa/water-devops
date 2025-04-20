@@ -2,14 +2,14 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main]  # Trigger on push to main branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Set up Python
@@ -22,7 +22,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Add SSH Key
+    - name: Set up SSH key for EC2
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_KEY }}
@@ -32,9 +32,9 @@ jobs:
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           cd /home/ubuntu/DevOps-Project || exit 1
           git pull origin main || exit 1
-          source venv/bin/activate || python3 -m venv venv && source venv/bin/activate
-          pip install -r requirements.txt
-          pkill -f app.py || echo "No existing Flask app running"
-          nohup python app.py &
+          source venv/bin/activate || python3 -m venv venv && source venv/bin/activate || exit 1
+          pip install -r requirements.txt || exit 1
+          pkill -f app.py || true  # Stop existing app
+          nohup python app.py > output.log 2>&1 &
           exit 0
         EOF
